@@ -6,6 +6,7 @@ import create_table
 def calculateBmi(inputdata):
 
     try:
+
         # loop to parse json data
         cursor, connection = create_table.db_Connection()
         resp = {}
@@ -15,6 +16,7 @@ def calculateBmi(inputdata):
             mass = data["WeightKg"]
             bmi_Category = ""
             health_Risk = ""
+            counter = 0
             # below variable to convert height into meters
             heightm = round(0.01*data["HeightCm"], 2)
             bmi = round(float(mass/(heightm*heightm)), 3)
@@ -30,6 +32,7 @@ def calculateBmi(inputdata):
             elif bmi < 30 and bmi >= 25:
                 bmi_Category = "Overweight"
                 health_Risk = "Enhanced risk"
+                counter = counter+1
 
             elif bmi < 35 and bmi >= 30:
                 bmi_Category = "Moderately obese"
@@ -56,7 +59,8 @@ def calculateBmi(inputdata):
                 count = calculate_Overweight_person(cursor, connection)
                 resp["Code"] = 200
                 resp["Msg"] = "Success"
-                resp["Overweight Person Count"] = count
+                resp["Overweight Person Count for input"] = counter
+                resp["Overweight Person Total Count in table"] = count
             except pymysql.Error as sqlerror:
                 print("sql error", sqlerror)
                 resp["Code"] = 510
