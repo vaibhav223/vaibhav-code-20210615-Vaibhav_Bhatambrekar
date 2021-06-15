@@ -7,9 +7,9 @@ def calculateBmi(inputdata):
 
     try:
 
-        # loop to parse json data
         cursor, connection = create_table.db_Connection()
         resp = {}
+        # loop to parse json data
         for data in inputdata:
             gender = data["Gender"]
             height = data["HeightCm"]
@@ -21,6 +21,7 @@ def calculateBmi(inputdata):
             heightm = round(0.01*data["HeightCm"], 2)
             bmi = round(float(mass/(heightm*heightm)), 3)
 
+            # Conditions for check range and assign bmi category and also health risk
             if bmi <= 18.4 and bmi > 0:
                 bmi_Category = "Underweight"
                 health_Risk = "Malnutrition risk"
@@ -51,17 +52,20 @@ def calculateBmi(inputdata):
 
             try:
 
+                # Below code to insert BMI Data into database table
                 sql_Insert_Data = "INSERT INTO BMI_DATA (PERSON_GENDER,PERSON_HEIGHT,PERSON_WEIGHT,PERSON_BMI,PERSON_BMI_CATEGORY,PERSON_HEALTH_RISK) VALUES(%s,%s,%s,%s,%s,%s);"
                 values = [gender, height, mass, bmi, bmi_Category, health_Risk]
                 cursor.execute(sql_Insert_Data, values)
                 connection.commit()
 
+                # below code to call the function which calculate the count of overweight person
                 count = calculate_Overweight_person(cursor, connection)
                 resp["Code"] = 200
                 resp["Msg"] = "Success"
                 resp["Overweight Person Count for input"] = counter
                 resp["Overweight Person Total Count in table"] = count
             except pymysql.Error as sqlerror:
+                # Code to handle the exceptions
                 print("sql error", sqlerror)
                 resp["Code"] = 510
                 resp["Msg"] = "Exception in sql try catch"
